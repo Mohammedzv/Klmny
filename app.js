@@ -1,42 +1,63 @@
-function login(){
-
-const username =
-document.getElementById("username").value;
-
-localStorage.setItem("username", username);
-
-window.location.href = "chat.html";
-
 const db = firebase.firestore();
 
+const username =
+localStorage.getItem("username") || "مستخدم";
+
 function sendMsg(){
-const msg = document.getElementById("msg").value;
-const user = localStorage.getItem("username");
+
+const input =
+document.getElementById("msg");
+
+if(input.value.trim() == "") return;
 
 db.collection("messages").add({
-text: msg,
-user: user,
+
+user: username,
+text: input.value,
 time: Date.now()
+
 });
 
-document.getElementById("msg").value = "";
+input.value = "";
+
 }
 
-db.collection("messages").orderBy("time")
-.onSnapshot(snapshot => {
+db.collection("messages")
+.orderBy("time")
+.onSnapshot(snapshot=>{
 
-document.getElementById("messages").innerHTML = "";
+const messages =
+document.getElementById("messages");
 
-snapshot.forEach(doc => {
-let data = doc.data();
+messages.innerHTML = "";
 
-document.getElementById("messages").innerHTML += `
-<div class="msg">
-<b>${data.user}</b><br>
-${data.text}
+snapshot.forEach(doc=>{
+
+const data = doc.data();
+
+messages.innerHTML += `
+
+<div class="message">
+
+<div class="user">
+${data.user}
 </div>
+
+${data.text}
+
+</div>
+
 `;
-});
 
 });
+
+messages.scrollTop =
+messages.scrollHeight;
+
+});
+
+function toggleMode(){
+
+document.body.classList.toggle("light");
+
 }
